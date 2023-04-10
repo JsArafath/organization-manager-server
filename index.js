@@ -10,6 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+//organizationManager
+//igkXRxzSyJwIqLFs
+
+const uri = "mongodb+srv://organizationManager:igkXRxzSyJwIqLFs@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority"
+
 app.get('/', function (req, res) {
     res.json({ msg: 'Organization Manager' })
 })
