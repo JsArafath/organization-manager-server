@@ -16,7 +16,7 @@ app.use(express.json());
 const uri = "mongodb+srv://organizationManager:igkXRxzSyJwIqLFs@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority"
 
 app.get('/', function (req, res) {
-    res.json({ msg: 'Organization Manager' })
+    res.json({ msg: 'Organization Manager ' })
 })
 
 app.listen(port, () => console.log("Server is running"));
