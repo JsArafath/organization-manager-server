@@ -1,6 +1,5 @@
-const express = require('express');
-const cors = require('cors');
-
+const express = require("express");
+const cors = require("cors");
 
 const port = process.env.PORT || 5000;
 
@@ -11,14 +10,13 @@ app.use(cors());
 app.use(express.json());
 
 //organizationManager
-//igkXRxzSyJwIqLFs
+//igkXRxzSyJwIqLFsJ
 
-const uri = "mongodb+srv://organizationManager:igkXRxzSyJwIqLFs@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority"
+const uri =
+  "mongodb+srv://organizationManager:igkXRxzSyJwIqLFs@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority";
 
-app.get('/', function (req, res) {
-    res.json({ msg: 'Organization Manager ' })
-})
+app.get("/", function (req, res) {
+  res.json({ msg: "Organization Manager " });
+});
 
 app.listen(port, () => console.log("Server is running"));
-
-
