@@ -12,15 +12,14 @@ app.use(cors());
 app.use(express.json());
 
 //organizationManager
-//igkXRxzSyJwIqLFs
+//igkXRxzSyJwIqLFsJ
+
 
 const uri = "mongodb+srv://organizationManager:igkXRxzSyJwIqLFs@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority"
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-app.get('/', function (req, res) {
-    res.json({ msg: 'Organization Manager ' })
-})
+app.get("/", function (req, res) {
+  res.json({ msg: "Organization Manager " });
+});
 
 app.listen(port, () => console.log("Server is running"));
-
-
