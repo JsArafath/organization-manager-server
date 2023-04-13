@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
+require('dotenv').config();
 
 
 const port = process.env.PORT || 5000;
@@ -15,8 +16,17 @@ app.use(express.json());
 //igkXRxzSyJwIqLFsJ
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority`
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority`
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+client.connect((err) => {
+    if (err) {
+        console.log('Error connecting to MongoDB', err);
+    } else {
+        console.log('Connected to MongoDB');
+        // Perform operations on the database here
+    }
+})
 
 async function run() {
     try {
@@ -29,9 +39,19 @@ async function run() {
             res.send(organizations);
         })
 
+        // Post Api for All Organizations
+        app.post('/organizations', async (req, res) => {
+            const neworganizations = req.body;
+            const result = await organizationCollection.insertOne(neworganizations);
+            console.log('hitting the post', req.body);
+            res.json(result);
+
+        })
+
+
     } finally {
         // Ensures that the client will close when you finish/error
-        // await client.close();
+
     }
 }
 
