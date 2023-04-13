@@ -1,0 +1,16 @@
+[
+    {
+        "name": "Iklab Foundation",
+        "founder": "Abdullah Al Mamun",
+        "email": "iklab@foundation.com",
+        "founding-time": "01/01/2020",
+        "address": "Khulna, Bangladesh"
+    },
+    {
+        "name": "Gain Peace Foundation",
+        "founder": "Rasel Bin Hasim",
+        "email": "foundation@gain.peace.com",
+        "founding-time": "01/01/2020",
+        "address": "Comilla, Bangladesh"
+    }
+]
