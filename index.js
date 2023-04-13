@@ -39,7 +39,7 @@ async function run() {
             res.send(organizations);
         })
 
-        // Post Api for All Organizations
+        // Post Api For All Organizations
         app.post('/organizations', async(req, res) => {
             const neworganizations = req.body; 
             const result = await organizationCollection.insertOne(neworganizations);
