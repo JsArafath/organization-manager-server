@@ -30,7 +30,8 @@ async function run() {
         })
 
     } finally {
-        // await client.close();
+        // Ensures that the client will close when you finish/error
+        await client.close();
     }
 }
 
