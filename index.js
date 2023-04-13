@@ -17,6 +17,24 @@ app.use(express.json());
 const uri = "mongodb+srv://organizationManager:igkXRxzSyJwIqLFs@cluster0.qogqlqn.mongodb.net/?retryWrites=true&w=majority"
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
+async function run() {
+    try {
+        const organizationCollection = client.db("OrganizationManager").collection("organizations");
+
+        //api for finding all orginizations
+        app.get('/organizations', async (req, res) => {
+            //find all organizations
+            const organizations = await organizationCollection.find({}).toArray();
+            res.send(organizations);
+        })
+
+    } finally {
+        // await client.close();
+    }
+}
+
+run().catch(console.dir);
+
 app.get('/', function (req, res) {
     res.json({ msg: 'Organization Manager ' })
 })
