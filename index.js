@@ -33,13 +33,12 @@ client.connect((err) => {
 
 async function run() {
     try {
-        const organizationCollection = client
-            .db("OrganizationManager")
-            .collection("organizations");
+        const organizationCollection = client.db("OrganizationManager").collection("organizations");
         //   payment Collection
-        const paymentCollection = client
-            .db("OrganizationManager")
-            .collection("paymentCollection");
+        const paymentCollection = client .db("OrganizationManager").collection("paymentCollection");
+        // membersCollection
+        const membersCollection = client .db("OrganizationManager").collection("members");
+
 
         //api for finding all orginizations
         app.get("/organizations", async (req, res) => {
@@ -118,6 +117,12 @@ async function run() {
             console.log('hitting the post', req.body);
             res.json(result);
 
+        })
+        // GET API For ALL Members
+        app.get('/members', async (req, res) => {
+            const query = {};
+            const members = await membersCollection.find(query).toArray();
+            res.send(members)
         })
 
 
