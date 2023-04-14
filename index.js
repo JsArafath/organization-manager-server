@@ -31,18 +31,17 @@ client.connect((err) => {
 })
 
 async function run() {
-  try {
-    const organizationCollection = client
-      .db("OrganizationManager")
-      .collection("organizations");
+    try {
+       
+      
+
+    const organizationCollection = client.db("OrganizationManager").collection("organizations");
     //   payment Collection
-    const paymentCollection = client
-      .db("OrganizationManager")
-      .collection("paymentCollection");
+    const paymentCollection = client.db("OrganizationManager").collection("paymentCollection");
     //   user collection
-    const userCollection = client
-      .db("OrganizationManager")
-      .collection("userCollection");
+    const userCollection = client.db("OrganizationManager").collection("userCollection");
+      // membersCollection
+      const membersCollection = client .db("OrganizationManager").collection("members");
 
     // verify admin user
       const verifyAdmin = async (req, res, next) => {
@@ -159,7 +158,7 @@ async function run() {
           `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
-    });
+    
   
         // Post Api For All Organizations
         app.post('/organizations', async (req, res) => {
@@ -168,6 +167,12 @@ async function run() {
             console.log('hitting the post', req.body);
             res.json(result);
 
+        })
+        // GET API For ALL Members
+        app.get('/members', async (req, res) => {
+            const query = {};
+            const members = await membersCollection.find(query).toArray();
+            res.send(members)
         })
 
 
