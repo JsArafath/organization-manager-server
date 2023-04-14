@@ -89,6 +89,14 @@ async function run() {
             const organizations = await organizationCollection.find({}).toArray();
             res.send(organizations);
         });
+        // Post Api For All Organizations
+        app.post('/organizations', async (req, res) => {
+            const neworganizations = req.body;
+            const result = await organizationCollection.insertOne(neworganizations);
+            console.log('hitting the post', req.body);
+            res.json(result);
+
+        })
         //  payment api for due amount
         app.post("/due-payment", async (req, res) => {
             const paymentInfo = req.body;
@@ -153,21 +161,14 @@ async function run() {
             }
         });
 
-      if (result.modifiedCount > 0) {
-        res.redirect(
-          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
-        );
-      }
+    //   if (result.modifiedCount > 0) {
+    //     res.redirect(
+    //       `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+    //     );
+    //   }
     
   
-        // Post Api For All Organizations
-        app.post('/organizations', async (req, res) => {
-            const neworganizations = req.body;
-            const result = await organizationCollection.insertOne(neworganizations);
-            console.log('hitting the post', req.body);
-            res.json(result);
-
-        })
+        
         // GET API For ALL Members
         app.get('/members', async (req, res) => {
             const query = {};
