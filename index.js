@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const SSLCommerzPayment = require("sslcommerz-lts");
@@ -43,6 +43,50 @@ async function run() {
     const paymentCollection = client
       .db("OrganizationManager")
       .collection("paymentCollection");
+    //   user collection
+    const userCollection = client
+      .db("OrganizationManager")
+      .collection("userCollection");
+
+    // verify admin user
+      const verifyAdmin = async (req, res, next) => {
+        const decodedEmail = req.decoded.email;
+        const query = { email: decodedEmail };
+        const user = await userCollection.findOne(query);
+  
+        if (user?.role !== "admin") {
+          return res.status(403).send({ message: "forbidden access" });
+        }
+        next();
+      };
+
+      // verify customer user
+      const verifyCustomer = async (req, res, next) => {
+        const decodedEmail = req.decoded.email;
+        const query = { email: decodedEmail };
+        const user = await userCollection.findOne(query);
+  
+        if (user?.role !== "customer") {
+          return res.status(403).send({ message: "forbidden access" });
+        }
+        next();
+      };
+  
+      // check customer
+    app.get("/user/customer/:email", async (req, res) => {
+        const email = req.params.email;
+        const query = { email };
+        const user = await userCollection.findOne(query);
+        res.send({ isCustomer: user?.role === "customer" });
+      });
+
+    //check admin user
+      app.get("/user/admin/:email", async (req, res) => {
+        const email = req.params.email;
+        const query = { email };
+        const user = await userCollection.findOne(query);
+        res.send({ isAdmin: user?.role === "admin" });
+      });
 
     //api for finding all orginizations
     app.get("/organizations", async (req, res) => {
@@ -109,7 +153,7 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://127.0.0.1:5174/dashboard/payment/success?transactionID=${transactionId}`
+          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
     });
