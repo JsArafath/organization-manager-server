@@ -10,21 +10,25 @@
             {
                 "month": "January-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "February-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "March-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "April-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             }
         ]
@@ -40,21 +44,25 @@
             {
                 "month": "January-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": true
             },
             {
                 "month": "February-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "March-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "April-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             }
         ]
@@ -70,21 +78,25 @@
             {
                 "month": "January-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "February-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "March-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             },
             {
                 "month": "April-2023",
                 "amount": 30,
+                "donationName": "Regular Donation",
                 "status": false
             }
         ]
