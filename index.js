@@ -94,6 +94,24 @@ async function run() {
       }
     });
 
+    // member approved
+    app.put("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id:new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          verified: true,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      
+      res.send(result);
+    });
     // check customer
     app.get("/user/customer/:email", async (req, res) => {
       const email = req.params.email;
@@ -132,7 +150,7 @@ async function run() {
         total_amount: paymentInfo.amount,
         currency: "BDT",
         tran_id: transactionId, // use unique tran_id for each api call
-        success_url: `https://organization-manager-server.onrender.com/due-payment/success?transactionId=${transactionId}`,
+        success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
         fail_url: "http://localhost:3030/fail",
         cancel_url: "http://localhost:3030/cancel",
         ipn_url: "http://localhost:3030/ipn",
@@ -197,7 +215,7 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
+          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
     });
