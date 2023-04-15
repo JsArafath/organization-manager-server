@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
-require('dotenv').config();
 const SSLCommerzPayment = require("sslcommerz-lts");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -32,9 +31,14 @@ client.connect((err) => {
 
 async function run() {
     try {
+        //  organization Collection
         const organizationCollection = client
             .db("OrganizationManager")
             .collection("organizations");
+        // members Collection
+        const membersCollection = client
+            .db("OrganizationManager")
+            .collection("members");
         //   payment Collection
         const paymentCollection = client
             .db("OrganizationManager")
