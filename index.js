@@ -51,7 +51,7 @@ async function run() {
       const query = { email: decodedEmail };
       const user = await usersCollection.findOne(query);
 
-      if (user?.role !== "admin") {
+      if (user?.position !== "admin") {
         return res.status(403).send({ message: "forbidden access" });
       }
       next();
@@ -63,7 +63,7 @@ async function run() {
       const query = { email: decodedEmail };
       const user = await usersCollection.findOne(query);
 
-      if (user?.role !== "member") {
+      if (user?.position !== "member") {
         return res.status(403).send({ message: "forbidden access" });
       }
       next();
@@ -171,6 +171,21 @@ async function run() {
         paid: false,
       });
     });
+
+    //api for finding all orginizations
+    app.get("/organizations", async (req, res) => {
+      //find all organizations
+      const organizations = await organizationCollection.find({}).toArray();
+      res.send(organizations);
+    });
+    // Post Api For All Organizations
+    app.post("/organizations", async (req, res) => {
+      const neworganizations = req.body;
+      const result = await organizationCollection.insertOne(neworganizations);
+      console.log("hitting the post", req.body);
+      res.json(result);
+    });
+    //  payment api for due amount
 
     //payment-due success
     app.post("/due-payment/success", async (req, res) => {
