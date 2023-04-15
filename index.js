@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const SSLCommerzPayment = require("sslcommerz-lts");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -32,17 +32,53 @@ client.connect((err) => {
 async function run() {
     try {
         //  organization Collection
-        const organizationCollection = client
-            .db("OrganizationManager")
-            .collection("organizations");
-        // members Collection
-        const membersCollection = client
-            .db("OrganizationManager")
-            .collection("members");
+        const organizationCollection = client.db("OrganizationManager").collection("organizations");
         //   payment Collection
-        const paymentCollection = client
-            .db("OrganizationManager")
-            .collection("paymentCollection");
+        const paymentCollection = client.db("OrganizationManager").collection("paymentCollection");
+        //   user collection
+        const userCollection = client.db("OrganizationManager").collection("userCollection");
+        // membersCollection
+        const membersCollection = client.db("OrganizationManager").collection("members");
+
+        // verify admin user
+        const verifyAdmin = async (req, res, next) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await userCollection.findOne(query);
+
+            if (user?.role !== "admin") {
+                return res.status(403).send({ message: "forbidden access" });
+            }
+            next();
+        };
+
+        // verify customer user
+        const verifyCustomer = async (req, res, next) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await userCollection.findOne(query);
+
+            if (user?.role !== "customer") {
+                return res.status(403).send({ message: "forbidden access" });
+            }
+            next();
+        };
+
+        // check customer
+        app.get("/user/customer/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await userCollection.findOne(query);
+            res.send({ isCustomer: user?.role === "customer" });
+        });
+
+        //check admin user
+        app.get("/user/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await userCollection.findOne(query);
+            res.send({ isAdmin: user?.role === "admin" });
+        });
 
         //api for finding all orginizations
         app.get("/organizations", async (req, res) => {
@@ -50,6 +86,14 @@ async function run() {
             const organizations = await organizationCollection.find({}).toArray();
             res.send(organizations);
         });
+        // Post Api For All Organizations
+        app.post('/organizations', async (req, res) => {
+            const neworganizations = req.body;
+            const result = await organizationCollection.insertOne(neworganizations);
+            console.log('hitting the post', req.body);
+            res.json(result);
+
+        })
         //  payment api for due amount
         app.post("/due-payment", async (req, res) => {
             const paymentInfo = req.body;
@@ -114,13 +158,19 @@ async function run() {
             }
         });
 
-        // Post Api For All Organizations
-        app.post('/organizations', async (req, res) => {
-            const neworganizations = req.body;
-            const result = await organizationCollection.insertOne(neworganizations);
-            console.log('hitting the post', req.body);
-            res.json(result);
+        //   if (result.modifiedCount > 0) {
+        //     res.redirect(
+        //       `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+        //     );
+        //   }
 
+
+
+        // GET API For ALL Members
+        app.get('/members', async (req, res) => {
+            const query = {};
+            const members = await membersCollection.find(query).toArray();
+            res.send(members)
         })
 
 
