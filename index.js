@@ -93,13 +93,31 @@ async function run() {
             }
         });
 
-        // check customer
-        app.get("/user/customer/:email", async (req, res) => {
-            const email = req.params.email;
-            const query = { email };
-            const user = await usersCollection.findOne(query);
-            res.send({ isCustomer: user?.position === "member" });
-        });
+    // member approved
+    app.put("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id:new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          verified: true,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      
+      res.send(result);
+    });
+    // check customer
+    app.get("/user/customer/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isCustomer: user?.position === "member" });
+    });
 
         //check admin user
         app.get("/user/admin/:email", async (req, res) => {
@@ -171,6 +189,7 @@ async function run() {
             });
         });
 
+        
         //payment-due success
         app.post("/due-payment/success", async (req, res) => {
             const { transactionId } = req.query;
