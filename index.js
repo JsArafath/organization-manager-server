@@ -39,9 +39,9 @@ async function run() {
     //   payment Collection
     const paymentCollection = client.db("OrganizationManager").collection("paymentCollection");
     //   user collection
-    const userCollection = client.db("OrganizationManager").collection("userCollection");
+    const userCollection = client.db("OrganizationManager").collection("usersCollection");
       // membersCollection
-      const membersCollection = client .db("OrganizationManager").collection("members");
+    const membersCollection = client .db("OrganizationManager").collection("members");
 
     // verify admin user
       const verifyAdmin = async (req, res, next) => {
@@ -175,6 +175,22 @@ async function run() {
             const members = await membersCollection.find(query).toArray();
             res.send(members)
         })
+                // Get API For ALL  Users
+                app.get('/users', async (req, res) => {
+                    const query = {};
+                    const users = await userCollection.find(query).toArray();
+                    const count = await userCollection.estimatedDocumentCount();
+                    res.send({count,users})
+                })
+                // GET API For user
+                app.get('/users/:email', async (req, res) => {
+                   const email = req.params.email;
+                   const query = {email};
+                   const user = await userCollection.findOne(query);
+                   res.send(user);
+                  
+                })
+
 
 
     } finally {
