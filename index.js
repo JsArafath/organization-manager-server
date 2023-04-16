@@ -1,7 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const { MongoClient, ObjectId } = require('mongodb');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ObjectId } = require("mongodb");
+require("dotenv").config();
 const SSLCommerzPayment = require("sslcommerz-lts");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -10,78 +10,117 @@ const store_id = process.env.STORE_ID;
 const store_passwd = process.env.STORE_PASSWORD;
 const is_live = false;
 
-
 const app = express();
 
 //middleware
 app.use(cors());
 app.use(express.json());
 
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d0mpncw.mongodb.net/?retryWrites=true&w=majority`
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d0mpncw.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
 
 client.connect((err) => {
     if (err) {
-        console.log('Error connecting to MongoDB', err);
+        console.log("Error connecting to MongoDB", err);
     } else {
-        console.log('Connected to MongoDB');
+        console.log("Connected to MongoDB");
         // Perform operations on the database here
     }
-})
+});
 
 async function run() {
     try {
-       
+        const organizationCollection = client.db("OrganizationManager").collection("organizations");
+        //   payment Collection
+        const paymentCollection = client.db("OrganizationManager").collection("paymentCollection");
+        //   user collection
+        const usersCollection = client.db("OrganizationManager").collection("usersCollection");
+
+        // verify admin user
+        const verifyAdmin = async (req, res, next) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await usersCollection.findOne(query);
+
+            if (user?.position !== "admin") {
+                return res.status(403).send({ message: "forbidden access" });
+            }
+            next();
+        };
+
+        // verify customer user
+        const verifyCustomer = async (req, res, next) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await usersCollection.findOne(query);
+
+            if (user?.position !== "member") {
+                return res.status(403).send({ message: "forbidden access" });
+            }
+            next();
+        };
+
+        // get all users
+        app.get("/users", async (req, res) => {
+            const query = {};
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+        // get user info by user email
+        app.get("/users/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const users = await usersCollection.find(query).toArray();
+            res.send(users);
+        });
+        // post user data
+
+        app.post("/users", async (req, res) => {
+            const userInfo = req.body;
+            const query = { email: userInfo.email };
+            const user = await usersCollection.findOne(query);
+            if (!user) {
+                const result = await usersCollection.insertOne(userInfo);
+                res.send(result);
+            }
+        });
+
+    // member approved
+    app.put("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id:new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          verified: true,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
       
-
-    const organizationCollection = client.db("OrganizationManager").collection("organizations");
-    //   payment Collection
-    const paymentCollection = client.db("OrganizationManager").collection("paymentCollection");
-    //   user collection
-    const userCollection = client.db("OrganizationManager").collection("usersCollection");
-      // membersCollection
-    const membersCollection = client .db("OrganizationManager").collection("members");
-
-    // verify admin user
-      const verifyAdmin = async (req, res, next) => {
-        const decodedEmail = req.decoded.email;
-        const query = { email: decodedEmail };
-        const user = await userCollection.findOne(query);
-  
-        if (user?.role !== "admin") {
-          return res.status(403).send({ message: "forbidden access" });
-        }
-        next();
-      };
-
-      // verify customer user
-      const verifyCustomer = async (req, res, next) => {
-        const decodedEmail = req.decoded.email;
-        const query = { email: decodedEmail };
-        const user = await userCollection.findOne(query);
-  
-        if (user?.role !== "customer") {
-          return res.status(403).send({ message: "forbidden access" });
-        }
-        next();
-      };
-  
-      // check customer
+      res.send(result);
+    });
+    // check customer
     app.get("/user/customer/:email", async (req, res) => {
-        const email = req.params.email;
-        const query = { email };
-        const user = await userCollection.findOne(query);
-        res.send({ isCustomer: user?.role === "customer" });
-      });
+      const email = req.params.email;
+      const query = { email };
+      const user = await usersCollection.findOne(query);
+      res.send({ isCustomer: user?.position === "member" });
+    });
 
-    //check admin user
-      app.get("/user/admin/:email", async (req, res) => {
-        const email = req.params.email;
-        const query = { email };
-        const user = await userCollection.findOne(query);
-        res.send({ isAdmin: user?.role === "admin" });
-      });
+        //check admin user
+        app.get("/user/admin/:email", async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            res.send({ isAdmin: user?.position === "admin" });
+        });
 
         //api for finding all orginizations
         app.get("/organizations", async (req, res) => {
@@ -90,13 +129,12 @@ async function run() {
             res.send(organizations);
         });
         // Post Api For All Organizations
-        app.post('/organizations', async (req, res) => {
+        app.post("/organizations", async (req, res) => {
             const neworganizations = req.body;
             const result = await organizationCollection.insertOne(neworganizations);
-            console.log('hitting the post', req.body);
+            console.log("hitting the post", req.body);
             res.json(result);
-
-        })
+        });
         //  payment api for due amount
         app.post("/due-payment", async (req, res) => {
             const paymentInfo = req.body;
@@ -146,6 +184,7 @@ async function run() {
             });
         });
 
+        
         //payment-due success
         app.post("/due-payment/success", async (req, res) => {
             const { transactionId } = req.query;
@@ -169,24 +208,19 @@ async function run() {
     
   
         
-        // GET API For ALL Members
-        app.get('/members', async (req, res) => {
-            const query = {};
-            const members = await membersCollection.find(query).toArray();
-            res.send(members)
-        })
-                // Get API For ALL  Users
+      
+           // Get API For ALL  Users
                 app.get('/users', async (req, res) => {
                     const query = {};
-                    const users = await userCollection.find(query).toArray();
-                    const count = await userCollection.estimatedDocumentCount();
+                    const users = await usersCollection.find(query).toArray();
+                    const count = await usersCollection.estimatedDocumentCount();
                     res.send({count,users})
                 })
                 // GET API For user
                 app.get('/users/:email', async (req, res) => {
                    const email = req.params.email;
                    const query = {email};
-                   const user = await userCollection.findOne(query);
+                   const user = await usersCollection.findOne(query);
                    res.send(user);
                   
                 })
@@ -195,7 +229,6 @@ async function run() {
 
     } finally {
         // Ensures that the client will close when you finish/error
-
     }
 }
 
