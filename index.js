@@ -44,8 +44,10 @@ async function run() {
     const usersCollection = client
       .db("OrganizationManager")
       .collection("usersCollection");
-      // news collection
-      const newsCollection = client.db("OrganizationManager").collection('newsCollection')
+    // news collection
+    const newsCollection = client
+      .db("OrganizationManager")
+      .collection("newsCollection");
 
     // verify admin user
     const verifyAdmin = async (req, res, next) => {
@@ -72,11 +74,11 @@ async function run() {
     };
 
     // get all news
-    app.get('/news', async (req, res, next) => {
+    app.get("/news", async (req, res, next) => {
       const query = {};
       const news = await newsCollection.find(query).toArray();
-      res.send(news)
-    })
+      res.send(news);
+    });
 
     // get all users
     app.get("/users", async (req, res) => {
@@ -121,6 +123,26 @@ async function run() {
 
       res.send(result);
     });
+
+    // update donatio status
+    app.put("/update-donation", async (req, res) => {
+      const item = req.query.item;
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+
+      const filter = { email: email, "donation.month": item.month };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          "donation.$.status": true,
+        },
+      };
+      const result = await usersCollection.update(filter, updatedDoc, options);
+      console.log(result)
+      res.send(result);
+    });
+
     // check customer
     app.get("/user/customer/:email", async (req, res) => {
       const email = req.params.email;
@@ -196,8 +218,7 @@ async function run() {
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.init(data).then((apiResponse) => {
         // Redirect the user to payment gateway
-        
-        
+
         let GatewayPageURL = apiResponse.GatewayPageURL;
         res.send({ url: GatewayPageURL });
       });
@@ -205,7 +226,7 @@ async function run() {
       const result = await paymentCollection.insertOne({
         ...paymentInfo,
         transactionId,
-        
+
         paid: false,
       });
     });
@@ -223,17 +244,17 @@ async function run() {
     });
 
     // validate
-    app.get('/validate', (req, res) => {
+    app.get("/validate", (req, res) => {
       const data = {
-          val_id:"230416150121E1SIgDwpp2NUErM" //that you go from sslcommerz response
+        val_id: "230416150121E1SIgDwpp2NUErM", //that you go from sslcommerz response
       };
-      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
-      sslcz.validate(data).then(data => {
-          //process the response that got from sslcommerz 
-         // https://developer.sslcommerz.com/doc/v4/#order-validation-api
-         res.send(data);
+      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+      sslcz.validate(data).then((data) => {
+        //process the response that got from sslcommerz
+        // https://developer.sslcommerz.com/doc/v4/#order-validation-api
+        res.send(data);
       });
-  }) 
+    });
     //payment-due success
     app.post("/due-payment/success", async (req, res) => {
       const { transactionId } = req.query;
@@ -252,7 +273,6 @@ async function run() {
     // Ensures that the client will close when you finish/error
   }
 }
-
 
 run().catch(console.dir);
 
