@@ -44,6 +44,8 @@ async function run() {
     const usersCollection = client
       .db("OrganizationManager")
       .collection("usersCollection");
+      // news collection
+      const newsCollection = client.db("OrganizationManager").collection('newsCollection')
 
     // verify admin user
     const verifyAdmin = async (req, res, next) => {
@@ -68,6 +70,13 @@ async function run() {
       }
       next();
     };
+
+    // get all news
+    app.get('/news', async (req, res, next) => {
+      const query = {};
+      const news = await newsCollection.find(query).toArray();
+      res.send(news)
+    })
 
     // get all users
     app.get("/users", async (req, res) => {
