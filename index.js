@@ -126,20 +126,23 @@ async function run() {
 
     // update donatio status
     app.put("/update-donation", async (req, res) => {
-      const item = req.query.item;
+      const month = req.query.month;
       const email = req.query.email;
+      const txd=req.query.txd;
       const query = { email: email };
+      const paymentQuery = {userEmail:email,month:month}
       const user = await usersCollection.findOne(query);
-
-      const filter = { email: email, "donation.month": item.month };
+      const paymentInfo = await paymentCollection.findOne(paymentQuery)
+      console.log(paymentInfo)
+      const filter = { email: email, "donation.month": month };
       const options = { upsert: true };
       const updatedDoc = {
         $set: {
           "donation.$.status": true,
+          "donation.$.transactionId": paymentInfo.transactionId
         },
       };
-      const result = await usersCollection.update(filter, updatedDoc, options);
-      console.log(result)
+      const result = await usersCollection.updateOne(filter, updatedDoc, options);
       res.send(result);
     });
 
