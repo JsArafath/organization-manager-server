@@ -128,7 +128,6 @@ async function run() {
     app.put("/update-donation", async (req, res) => {
       const month = req.query.month;
       const email = req.query.email;
-      const txd=req.query.txd;
       const query = { email: email };
       const paymentQuery = {userEmail:email,month:month}
       const user = await usersCollection.findOne(query);
@@ -175,6 +174,20 @@ async function run() {
       console.log("hitting the post", req.body);
       res.json(result);
     });
+
+    // get donation array by user email
+    app.get("/donation/:email", async (req, res) => {
+      //find all organizations
+      // const query={
+      //   organization: req.query.organization
+      // }
+      const email = req.params.email;
+      
+      const query ={email:email}
+      const user = await usersCollection.find({}).toArray();
+      res.send(user.donation);
+    });
+
     // get all transactions
     app.get("/all-transaction", async (req, res) => {
       //find all organizations
