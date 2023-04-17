@@ -118,6 +118,7 @@ async function run() {
             const user = await usersCollection.findOne(query);
             res.send({ isCustomer: user?.position === "member" });
         });
+
         //check admin user
         app.get("/user/admin/:email", async (req, res) => {
             const email = req.params.email;
@@ -142,13 +143,12 @@ async function run() {
         //  payment api for due amount
         app.post("/due-payment", async (req, res) => {
             const paymentInfo = req.body;
-
             const transactionId = new ObjectId().toString().slice(5, 17);
             const data = {
                 total_amount: paymentInfo.amount,
                 currency: "BDT",
                 tran_id: transactionId, // use unique tran_id for each api call
-                success_url: `https://organization-manager-server.onrender.com/due-payment/success?transactionId=${transactionId}`,
+                success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
                 fail_url: "http://localhost:3030/fail",
                 cancel_url: "http://localhost:3030/cancel",
                 ipn_url: "http://localhost:3030/ipn",
@@ -177,6 +177,8 @@ async function run() {
             const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
             sslcz.init(data).then((apiResponse) => {
                 // Redirect the user to payment gateway
+                console.log(apiResponse);
+
                 let GatewayPageURL = apiResponse.GatewayPageURL;
                 res.send({ url: GatewayPageURL });
             });
@@ -184,11 +186,33 @@ async function run() {
             const result = await paymentCollection.insertOne({
                 ...paymentInfo,
                 transactionId,
+
                 paid: false,
             });
         });
 
+        app.get("/transaction-query-by-transaction-id", (req, res) => {
+            const data = {
+                tran_id: "b8c4a957ef1d",
+            };
+            const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+            sslcz.transactionQueryByTransactionId(data).then((data) => {
+                //process the response that got from sslcommerz
+                //https://developer.sslcommerz.com/doc/v4/#by-session-id
+                res.send(data);
+            });
+        });
 
+        app.get("/validate", (req, res) => {
+            const data = {
+                val_id: "D1CEB4F4AB5C4A0FC62E8BDD34363E2D", //that you go from sslcommerz response
+            };
+            const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
+            sslcz.validate(data).then((data) => {
+                //process the response that got from sslcommerz
+                // https://developer.sslcommerz.com/doc/v4/#order-validation-api
+            });
+        });
         //payment-due success
         app.post("/due-payment/success", async (req, res) => {
             const { transactionId } = req.query;
@@ -199,7 +223,7 @@ async function run() {
 
             if (result.modifiedCount > 0) {
                 res.redirect(
-                    `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
+                    `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
                 );
             }
         });
