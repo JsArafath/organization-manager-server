@@ -150,6 +150,15 @@ async function run() {
       console.log("hitting the post", req.body);
       res.json(result);
     });
+    // get all transactions
+    app.get("/all-transaction", async (req, res) => {
+      //find all organizations
+      // const query={
+      //   organization: req.query.organization
+      // }
+      const organizations = await paymentCollection.find({}).toArray();
+      res.send(organizations);
+    });
     //  payment api for due amount
     app.post("/due-payment", async (req, res) => {
       const paymentInfo = req.body;
@@ -187,7 +196,7 @@ async function run() {
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.init(data).then((apiResponse) => {
         // Redirect the user to payment gateway
-        console.log(apiResponse);
+        
         
         let GatewayPageURL = apiResponse.GatewayPageURL;
         res.send({ url: GatewayPageURL });
@@ -203,7 +212,7 @@ async function run() {
 
     app.get("/transaction-query-by-transaction-id", (req, res) => {
       const data = {
-        tran_id: "b8c4a957ef1d",
+        tran_id: "957aa414d6ea",
       };
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.transactionQueryByTransactionId(data).then((data) => {
@@ -213,16 +222,18 @@ async function run() {
       });
     });
 
-    app.get("/validate", (req, res) => {
+    // validate
+    app.get('/validate', (req, res) => {
       const data = {
-        val_id: "D1CEB4F4AB5C4A0FC62E8BDD34363E2D", //that you go from sslcommerz response
+          val_id:"230416150121E1SIgDwpp2NUErM" //that you go from sslcommerz response
       };
-      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
-      sslcz.validate(data).then((data) => {
-        //process the response that got from sslcommerz
-        // https://developer.sslcommerz.com/doc/v4/#order-validation-api
+      const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
+      sslcz.validate(data).then(data => {
+          //process the response that got from sslcommerz 
+         // https://developer.sslcommerz.com/doc/v4/#order-validation-api
+         res.send(data);
       });
-    });
+  }) 
     //payment-due success
     app.post("/due-payment/success", async (req, res) => {
       const { transactionId } = req.query;
