@@ -77,7 +77,7 @@ async function run() {
       const news = await newsCollection.find(query).toArray();
       res.send(news)
     })
-
+    
     // get all users
     app.get("/users", async (req, res) => {
       const query = {};
