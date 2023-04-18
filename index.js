@@ -44,6 +44,10 @@ async function run() {
     const usersCollection = client
       .db("OrganizationManager")
       .collection("usersCollection");
+    // news collection
+    const newsCollection = client
+      .db("OrganizationManager")
+      .collection("newsCollection");
 
     // loanCollection
     const loanCollection = client
@@ -73,6 +77,14 @@ async function run() {
       }
       next();
     };
+
+    // get all news
+    app.get("/news", async (req, res, next) => {
+      const query = {};
+      const news = await newsCollection.find(query).toArray();
+
+      res.send(news);
+    });
 
     // get all users
     app.get("/users", async (req, res) => {
@@ -117,6 +129,32 @@ async function run() {
 
       res.send(result);
     });
+
+    // update donatio status
+    app.put("/update-donation", async (req, res) => {
+      const month = req.query.month;
+      const email = req.query.email;
+      const query = { email: email };
+      const paymentQuery = { userEmail: email, month: month };
+      const user = await usersCollection.findOne(query);
+      const paymentInfo = await paymentCollection.findOne(paymentQuery);
+      console.log(paymentInfo);
+      const filter = { email: email, "donation.month": month };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          "donation.$.status": true,
+          "donation.$.transactionId": paymentInfo.transactionId,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
     // check customer
     app.get("/user/customer/:email", async (req, res) => {
       const email = req.params.email;
@@ -154,6 +192,28 @@ async function run() {
       res.json(result);
     });
 
+    // get donation array by user email
+    app.get("/donation/:email", async (req, res) => {
+      //find all organizations
+      // const query={
+      //   organization: req.query.organization
+      // }
+      const email = req.params.email;
+
+      const query = { email: email };
+      const user = await usersCollection.find({}).toArray();
+      res.send(user.donation);
+    });
+
+    // get all transactions
+    app.get("/all-transaction", async (req, res) => {
+      //find all organizations
+      // const query={
+      //   organization: req.query.organization
+      // }
+      const organizations = await paymentCollection.find({}).toArray();
+      res.send(organizations);
+    });
     //  payment api for due amount
     app.post("/due-payment", async (req, res) => {
       const paymentInfo = req.body;
@@ -162,7 +222,8 @@ async function run() {
         total_amount: paymentInfo.amount,
         currency: "BDT",
         tran_id: transactionId, // use unique tran_id for each api call
-        success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
+        // success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
+        success_url: `https://organization-manager-server.onrender.com/due-payment/success?transactionId=${transactionId}`,
         fail_url: "http://localhost:3030/fail",
         cancel_url: "http://localhost:3030/cancel",
         ipn_url: "http://localhost:3030/ipn",
@@ -191,7 +252,6 @@ async function run() {
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.init(data).then((apiResponse) => {
         // Redirect the user to payment gateway
-        console.log(apiResponse);
 
         let GatewayPageURL = apiResponse.GatewayPageURL;
         res.send({ url: GatewayPageURL });
@@ -207,7 +267,7 @@ async function run() {
 
     app.get("/transaction-query-by-transaction-id", (req, res) => {
       const data = {
-        tran_id: "b8c4a957ef1d",
+        tran_id: "957aa414d6ea",
       };
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.transactionQueryByTransactionId(data).then((data) => {
@@ -217,14 +277,16 @@ async function run() {
       });
     });
 
+    // validate
     app.get("/validate", (req, res) => {
       const data = {
-        val_id: "D1CEB4F4AB5C4A0FC62E8BDD34363E2D", //that you go from sslcommerz response
+        val_id: "230416150121E1SIgDwpp2NUErM", //that you go from sslcommerz response
       };
       const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
       sslcz.validate(data).then((data) => {
         //process the response that got from sslcommerz
         // https://developer.sslcommerz.com/doc/v4/#order-validation-api
+        res.send(data);
       });
     });
     //payment-due success
@@ -237,7 +299,8 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+          // `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+          `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
     });
