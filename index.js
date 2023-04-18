@@ -45,6 +45,11 @@ async function run() {
       .db("OrganizationManager")
       .collection("usersCollection");
 
+    // loanCollection
+    const loanCollection = client
+      .db("OrganizationManager")
+      .collection("loansCollection");
+
     // verify admin user
     const verifyAdmin = async (req, res, next) => {
       const decodedEmail = req.decoded.email;
@@ -141,6 +146,14 @@ async function run() {
       console.log("hitting the post", req.body);
       res.json(result);
     });
+
+    app.post("/loanSystem", async (req, res) => {
+      const loanSystem = req.body;
+      const result = await organizationCollection.insertOne(loanSystem);
+      console.log("hitting the post", req.body);
+      res.json(result);
+    });
+
     //  payment api for due amount
     app.post("/due-payment", async (req, res) => {
       const paymentInfo = req.body;
@@ -179,7 +192,7 @@ async function run() {
       sslcz.init(data).then((apiResponse) => {
         // Redirect the user to payment gateway
         console.log(apiResponse);
-        
+
         let GatewayPageURL = apiResponse.GatewayPageURL;
         res.send({ url: GatewayPageURL });
       });
@@ -187,7 +200,7 @@ async function run() {
       const result = await paymentCollection.insertOne({
         ...paymentInfo,
         transactionId,
-        
+
         paid: false,
       });
     });
