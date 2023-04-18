@@ -129,19 +129,23 @@ async function run() {
       const month = req.query.month;
       const email = req.query.email;
       const query = { email: email };
-      const paymentQuery = {userEmail:email,month:month}
+      const paymentQuery = { userEmail: email, month: month };
       const user = await usersCollection.findOne(query);
-      const paymentInfo = await paymentCollection.findOne(paymentQuery)
-      console.log(paymentInfo)
+      const paymentInfo = await paymentCollection.findOne(paymentQuery);
+      console.log(paymentInfo);
       const filter = { email: email, "donation.month": month };
       const options = { upsert: true };
       const updatedDoc = {
         $set: {
           "donation.$.status": true,
-          "donation.$.transactionId": paymentInfo.transactionId
+          "donation.$.transactionId": paymentInfo.transactionId,
         },
       };
-      const result = await usersCollection.updateOne(filter, updatedDoc, options);
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
       res.send(result);
     });
 
@@ -182,8 +186,8 @@ async function run() {
       //   organization: req.query.organization
       // }
       const email = req.params.email;
-      
-      const query ={email:email}
+
+      const query = { email: email };
       const user = await usersCollection.find({}).toArray();
       res.send(user.donation);
     });
@@ -205,7 +209,8 @@ async function run() {
         total_amount: paymentInfo.amount,
         currency: "BDT",
         tran_id: transactionId, // use unique tran_id for each api call
-        success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
+        // success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
+        success_url: `https://organization-manager-server.onrender.com/due-payment/success?transactionId=${transactionId}`,
         fail_url: "http://localhost:3030/fail",
         cancel_url: "http://localhost:3030/cancel",
         ipn_url: "http://localhost:3030/ipn",
@@ -281,7 +286,8 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+          // `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+          `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
     });
