@@ -187,8 +187,7 @@ async function run() {
 
     app.post("/loanSystem", async (req, res) => {
       const loanSystem = req.body;
-      const result = await organizationCollection.insertOne(loanSystem);
-      console.log("hitting the post", req.body);
+      const result = await loanCollection.insertOne(loanSystem);
       res.json(result);
     });
 
@@ -199,7 +198,6 @@ async function run() {
       //   organization: req.query.organization
       // }
       const email = req.params.email;
-
       const query = { email: email };
       const user = await usersCollection.find({}).toArray();
       res.send(user.donation);
