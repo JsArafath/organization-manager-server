@@ -77,9 +77,10 @@ async function run() {
     app.get("/news", async (req, res, next) => {
       const query = {};
       const news = await newsCollection.find(query).toArray();
-      res.send(news);
-    });
 
+      res.send(news)
+    })
+    
     // get all users
     app.get("/users", async (req, res) => {
       const query = {};
