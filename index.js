@@ -49,6 +49,11 @@ async function run() {
       .db("OrganizationManager")
       .collection("newsCollection");
 
+    // loanCollection
+    const loanCollection = client
+      .db("OrganizationManager")
+      .collection("loansCollection");
+
     // verify admin user
     const verifyAdmin = async (req, res, next) => {
       const decodedEmail = req.decoded.email;
@@ -78,9 +83,9 @@ async function run() {
       const query = {};
       const news = await newsCollection.find(query).toArray();
 
-      res.send(news)
-    })
-    
+      res.send(news);
+    });
+
     // get all users
     app.get("/users", async (req, res) => {
       const query = {};
@@ -176,6 +181,13 @@ async function run() {
     app.post("/organizations", async (req, res) => {
       const neworganizations = req.body;
       const result = await organizationCollection.insertOne(neworganizations);
+      console.log("hitting the post", req.body);
+      res.json(result);
+    });
+
+    app.post("/loanSystem", async (req, res) => {
+      const loanSystem = req.body;
+      const result = await organizationCollection.insertOne(loanSystem);
       console.log("hitting the post", req.body);
       res.json(result);
     });
