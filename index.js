@@ -187,7 +187,7 @@ async function run() {
 
     app.post("/loanSystem", async (req, res) => {
       const loanSystem = req.body;
-      const result = await organizationCollection.insertOne(loanSystem);
+      const result = await loanCollection.insertOne(loanSystem);
       console.log("hitting the post", req.body);
       res.json(result);
     });
