@@ -92,6 +92,7 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
+
     // get user info by user email
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -99,8 +100,9 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
+    
     // post user data
-
+    
     app.post("/users", async (req, res) => {
       const userInfo = req.body;
       const query = { email: userInfo.email };
