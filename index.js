@@ -22,14 +22,14 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 
-client.connect((err) => {
-  if (err) {
-    console.log("Error connecting to MongoDB", err);
-  } else {
-    console.log("Connected to MongoDB");
-    // Perform operations on the database here
-  }
-});
+// client.connect((err) => {
+//   if (err) {
+//     console.log("Error connecting to MongoDB", err);
+//   } else {
+//     console.log("Connected to MongoDB");
+//     // Perform operations on the database here
+//   }
+// });
 
 async function run() {
   try {
