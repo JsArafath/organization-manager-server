@@ -22,14 +22,14 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
 });
 
-client.connect((err) => {
-  if (err) {
-    console.log("Error connecting to MongoDB", err);
-  } else {
-    console.log("Connected to MongoDB");
-    // Perform operations on the database here
-  }
-});
+// client.connect((err) => {
+//   if (err) {
+//     console.log("Error connecting to MongoDB", err);
+//   } else {
+//     console.log("Connected to MongoDB");
+//     // Perform operations on the database here
+//   }
+// });
 
 async function run() {
   try {
@@ -48,6 +48,10 @@ async function run() {
     const newsCollection = client
       .db("OrganizationManager")
       .collection("newsCollection");
+    // events collection
+    const eventsCollection = client
+      .db("OrganizationManager")
+      .collection("eventsCollection");
 
     // loanCollection
     const loanCollection = client
@@ -82,7 +86,6 @@ async function run() {
     app.get("/news", async (req, res, next) => {
       const query = {};
       const news = await newsCollection.find(query).toArray();
-
       res.send(news);
     });
 
@@ -179,6 +182,14 @@ async function run() {
       const organizations = await organizationCollection.find({}).toArray();
       res.send(organizations);
     });
+
+    //api for finding all events
+    app.get("/events", async (req, res) => {
+      //find all events
+      const events = await eventsCollection.find({}).toArray();
+      res.send(events);
+    });
+
     // Post Api For All Organizations
     app.post("/organizations", async (req, res) => {
       const neworganizations = req.body;
@@ -187,10 +198,25 @@ async function run() {
       res.json(result);
     });
 
+    // Post Api For All Events
+    app.post("/events", async (req, res) => {
+      const newevents = req.body;
+      const result = await eventsCollection.insertOne(newevents);
+      console.log("hitting the post", req.body);
+      res.json(result);
+    });
+
     app.post("/loanSystem", async (req, res) => {
       const loanSystem = req.body;
       const result = await loanCollection.insertOne(loanSystem);
       res.json(result);
+    });
+
+    app.get("/loanApplication", async (req, res) => {
+      const Organizations = req.query.Organizations;
+      const query = { Organizations: Organizations };
+      const loanApplication = await loanCollection.find(query).toArray();
+      res.send(loanApplication);
     });
 
     // get donation array by user email
