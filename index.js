@@ -212,11 +212,11 @@ async function run() {
 
     app.get("/loanApplication", async (req, res) => {
       const Organizations = req.query.Organizations;
-      const position = req.query.position;
-      const query = { Organizations: Organizations, position: position };
+      const query = { Organizations: Organizations };
       const loanApplication = await loanCollection.find(query).toArray();
       res.send(loanApplication);
     });
+
     // get donation array by user email
     app.get("/donation/:email", async (req, res) => {
       //find all organizations
