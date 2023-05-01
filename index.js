@@ -48,10 +48,10 @@ async function run() {
     const newsCollection = client
       .db("OrganizationManager")
       .collection("newsCollection");
-      // events collection
+    // events collection
     const eventsCollection = client
-    .db("OrganizationManager")
-    .collection("eventsCollection");
+      .db("OrganizationManager")
+      .collection("eventsCollection");
 
     // loanCollection
     const loanCollection = client
@@ -86,7 +86,6 @@ async function run() {
     app.get("/news", async (req, res, next) => {
       const query = {};
       const news = await newsCollection.find(query).toArray();
-
       res.send(news);
     });
 
@@ -209,6 +208,13 @@ async function run() {
       const loanSystem = req.body;
       const result = await loanCollection.insertOne(loanSystem);
       res.json(result);
+    });
+
+    app.get("/loanApplication", async (req, res) => {
+      const Organizations = req.query.Organizations;
+      const query = { Organizations: Organizations };
+      const loanApplication = await loanCollection.find(query).toArray();
+      res.send(loanApplication);
     });
 
     // get donation array by user email
