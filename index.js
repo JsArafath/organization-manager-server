@@ -48,10 +48,10 @@ async function run() {
     const newsCollection = client
       .db("OrganizationManager")
       .collection("newsCollection");
-    // events collection
+      // events collection
     const eventsCollection = client
-      .db("OrganizationManager")
-      .collection("eventsCollection");
+    .db("OrganizationManager")
+    .collection("eventsCollection");
 
     // loanCollection
     const loanCollection = client
@@ -86,16 +86,21 @@ async function run() {
     app.get("/news", async (req, res, next) => {
       const query = {};
       const news = await newsCollection.find(query).toArray();
+
       res.send(news);
     });
-
+    app.get('/organizations/:id', async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: id};
+      const kazi = await organizationCollection.findOne(query);
+      res.json(kazi);
+    })
     // get all users
     app.get("/users", async (req, res) => {
       const query = {};
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
-
     // get user info by user email
     app.get("/users/:email", async (req, res) => {
       const email = req.params.email;
@@ -103,9 +108,8 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
-    
     // post user data
-    
+
     app.post("/users", async (req, res) => {
       const userInfo = req.body;
       const query = { email: userInfo.email };
@@ -206,61 +210,11 @@ async function run() {
       res.json(result);
     });
 
-    // loanprocess
     app.post("/loanSystem", async (req, res) => {
       const loanSystem = req.body;
       const result = await loanCollection.insertOne(loanSystem);
       res.json(result);
     });
-
-    app.get("/loanApplication", async (req, res) => {
-      const Organizations = req.query.Organizations;
-      const query = { Organizations: Organizations };
-      const loanApplication = await loanCollection.find(query).toArray();
-      res.send(loanApplication);
-    });
-    app.get("/myLoan", async (req, res) => {
-      const userEmail = req.query.userEmail;
-      const query = { userEmail: userEmail };
-      const loanApplication = await loanCollection.find(query).toArray();
-      res.send(loanApplication);
-    });
-    // accept
-    app.put("/accept/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedDoc = {
-        $set: {
-          loan: "accepted",
-        },
-      };
-      const result = await loanCollection.updateOne(
-        filter,
-        updatedDoc,
-        options
-      );
-      res.send(result);
-    });
-    // reject
-    app.put("/reject/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedDoc = {
-        $set: {
-          loan: "rejected",
-        },
-      };
-      const result = await loanCollection.updateOne(
-        filter,
-        updatedDoc,
-        options
-      );
-      res.send(result);
-    });
-
-    // loanprocess
 
     // get donation array by user email
     app.get("/donation/:email", async (req, res) => {
@@ -333,6 +287,7 @@ async function run() {
         paid: false,
       });
     });
+
 
     app.get("/transaction-query-by-transaction-id", (req, res) => {
       const data = {
