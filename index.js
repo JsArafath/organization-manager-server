@@ -219,6 +219,7 @@ async function run() {
       res.json(result);
     });
 
+    // loanprocess
     app.post("/loanSystem", async (req, res) => {
       const loanSystem = req.body;
       const result = await loanCollection.insertOne(loanSystem);
@@ -231,6 +232,48 @@ async function run() {
       const loanApplication = await loanCollection.find(query).toArray();
       res.send(loanApplication);
     });
+    app.get("/myLoan", async (req, res) => {
+      const userEmail = req.query.userEmail;
+      const query = { userEmail: userEmail };
+      const loanApplication = await loanCollection.find(query).toArray();
+      res.send(loanApplication);
+    });
+    // accept
+    app.put("/accept/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          loan: "accepted",
+        },
+      };
+      const result = await loanCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+    // reject
+    app.put("/reject/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          loan: "rejected",
+        },
+      };
+      const result = await loanCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    // loanprocess
 
     // get donation array by user email
     app.get("/donation/:email", async (req, res) => {
