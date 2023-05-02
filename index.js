@@ -88,6 +88,19 @@ async function run() {
       const news = await newsCollection.find(query).toArray();
       res.send(news);
     });
+    
+
+    // users for pagination
+    app.get("/userspaginate", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      const query = {};
+      const users = await usersCollection.find(query).skip(page*size).limit(size).toArray();
+      const count = await usersCollection.estimatedDocumentCount();
+      res.send({count,users});
+    });
+
+
 
     // get all users
     app.get("/users", async (req, res) => {
