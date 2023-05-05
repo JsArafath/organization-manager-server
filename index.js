@@ -90,7 +90,7 @@ async function run() {
 
 
         // paginate for users
-        app.get('/users/:organization', async (req, res) => {
+        app.get('/users/getpage/:organization', async (req, res) => {
             const organization = req.params.organization;
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
