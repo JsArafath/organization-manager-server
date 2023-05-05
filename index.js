@@ -89,18 +89,17 @@ async function run() {
       res.send(news);
     });
 
+        // post user data
 
-    // paginate for users
-    app.get('/users/:organization', async (req, res) => {
-      const organization = req.params.organization;
-      const page = parseInt(req.query.page);
-      const size = parseInt(req.query.size);
-      const query = {organization};
-      const users = await usersCollection.find(query).skip(page*size).limit(size).toArray();
-      const count = users.length;
-      res.send({users,count})
-    })
-
+        app.post("/users", async (req, res) => {
+          const userInfo = req.body;
+          const query = { email: userInfo.email };
+          const user = await usersCollection.findOne(query);
+          if (!user) {
+            const result = await usersCollection.insertOne(userInfo);
+            res.send(result);
+          }
+        });
 
     app.get('/organizations/:id', async(req,res)=>{
       const id = req.params.id;
@@ -122,20 +121,26 @@ async function run() {
       const users = await usersCollection.find(query).toArray();
       res.send(users);
     });
-    // post user data
 
-    app.post("/users", async (req, res) => {
-      const userInfo = req.body;
-      const query = { email: userInfo.email };
-      const user = await usersCollection.findOne(query);
-      if (!user) {
-        const result = await usersCollection.insertOne(userInfo);
-        res.send(result);
-      }
-    });
+        // paginate for users
+        app.get('/users/:organization', async (req, res) => {
+          const organization = req.params.organization;
+          console.log(organization);
+          const page = parseInt(req.query.page);
+          const size = parseInt(req.query.size);
+          const query = {organization};
+          const users = await usersCollection.find(query).toArray();
+          const count = users.length;
+          res.send({users})
+        })
+        // skip(page*size).limit(size).
+
+       
+
 
     // member approved
     app.put("/users/:id", async (req, res) => {
+      console.log(req);
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
