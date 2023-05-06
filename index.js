@@ -228,14 +228,18 @@ async function run() {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
+
       const updatedDoc = {
         $set: {
           loan: "accepted",
         },
+        _id: loan._id,
+        $set: { endDate },
       };
       const result = await loanCollection.updateOne(
         filter,
         updatedDoc,
+
         options
       );
       res.send(result);
