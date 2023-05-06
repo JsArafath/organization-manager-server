@@ -89,26 +89,6 @@ async function run() {
       res.send(news);
     });
 
-
-    // paginate for users
-    app.get('/users/:organization', async (req, res) => {
-      const organization = req.params.organization;
-      const page = parseInt(req.query.page);
-      const size = parseInt(req.query.size);
-      const query = {organization};
-      const users = await usersCollection.find(query).skip(page*size).limit(size).toArray();
-      const count = users.length;
-      res.send({users,count})
-    })
-
-
-    app.get('/organizations/:id', async(req,res)=>{
-      const id = req.params.id;
-      const query = {_id: id};
-      const kazi = await organizationCollection.findOne(query);
-      res.json(kazi);
-    })
-
     // get all users
     app.get("/users", async (req, res) => {
       const query = {};
