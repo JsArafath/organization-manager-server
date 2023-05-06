@@ -88,6 +88,7 @@ async function run() {
             res.send(news);
         });
 
+        // post user data
 
         // paginate for users
         app.get('/users/getpage/:organization', async (req, res) => {
@@ -132,6 +133,22 @@ async function run() {
                 res.send(result);
             }
         });
+
+        // update the user info
+        app.put('/users/update/:id', async (req, res) => {
+          const id = req.params.id;
+          const filter = {_id : new ObjectId(id)};
+          const user = req.body;
+          const options = {upsert : true}
+          const  updatedUser = {
+            $set : {
+                   name : user.name,
+                   phone : user.phone
+            }
+          }
+          const result = await usersCollection.updateOne(filter,updatedUser,options)
+          res.send(result);
+         })
 
         // member approved
         app.put("/users/:id", async (req, res) => {
