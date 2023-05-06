@@ -3,6 +3,7 @@ const cors = require("cors");
 const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 const SSLCommerzPayment = require("sslcommerz-lts");
+require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 const store_id = process.env.STORE_ID;
@@ -88,30 +89,6 @@ async function run() {
       res.send(news);
     });
 
-    // post user data
-
-    // paginate for users
-    app.get("/users/getpage/:organization", async (req, res) => {
-      const organization = req.params.organization;
-      const page = parseInt(req.query.page);
-      const size = parseInt(req.query.size);
-      const query = { organization };
-      const users = await usersCollection
-        .find(query)
-        .skip(page * size)
-        .limit(size)
-        .toArray();
-      const count = users.length;
-      res.send({ users, count });
-    });
-
-    app.get("/organizations/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: id };
-      const kazi = await organizationCollection.findOne(query);
-      res.json(kazi);
-    });
-
     // get all users
     app.get("/users", async (req, res) => {
       const query = {};
@@ -135,26 +112,6 @@ async function run() {
         const result = await usersCollection.insertOne(userInfo);
         res.send(result);
       }
-    });
-
-    // update the user info
-    app.put("/users/update/:id", async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const user = req.body;
-      const options = { upsert: true };
-      const updatedUser = {
-        $set: {
-          name: user.name,
-          phone: user.phone,
-        },
-      };
-      const result = await usersCollection.updateOne(
-        filter,
-        updatedUser,
-        options
-      );
-      res.send(result);
     });
 
     // member approved
@@ -275,8 +232,6 @@ async function run() {
         $set: {
           loan: "accepted",
         },
-        _id: loan._id,
-        $set: { endDate },
       };
       const result = await loanCollection.updateOne(
         filter,
