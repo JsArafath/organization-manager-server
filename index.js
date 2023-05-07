@@ -223,6 +223,7 @@ async function run() {
       const loanApplication = await loanCollection.find(query).toArray();
       res.send(loanApplication);
     });
+
     // accept
     app.put("/accept/:id", async (req, res) => {
       const id = req.params.id;
@@ -231,6 +232,7 @@ async function run() {
       const updatedDoc = {
         $set: {
           loan: "accepted",
+          endDate: req.body.endDate,
         },
       };
       const result = await loanCollection.updateOne(
@@ -240,6 +242,7 @@ async function run() {
       );
       res.send(result);
     });
+
     // reject
     app.put("/reject/:id", async (req, res) => {
       const id = req.params.id;
