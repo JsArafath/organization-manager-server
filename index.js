@@ -48,6 +48,9 @@ async function run() {
     const newsCollection = client
       .db("OrganizationManager")
       .collection("newsCollection");
+    const donationCollection = client
+      .db("OrganizationManager")
+      .collection("donationHistory");
     // events collection
     const eventsCollection = client
       .db("OrganizationManager")
@@ -88,6 +91,13 @@ async function run() {
       const news = await newsCollection.find(query).toArray();
       res.send(news);
     });
+    // get all donationHistory
+    app.get("/donationHistory", async (req, res, next) => {
+      const query = {};
+      const donationhistory = await donationCollection.find(query).toArray();
+      res.send(donationhistory);
+    });
+    
 
     // get all users
     app.get("/users", async (req, res) => {
@@ -203,6 +213,14 @@ async function run() {
       console.log("hitting the post", req.body);
       res.json(result);
     });
+    // Post Api For All Donation History
+    app.post("/donationHistory", async (req, res) => {
+      const newdonation = req.body;
+      const result = await donationCollection.insertOne(newdonation);
+      console.log("hitting the post", req.body);
+      res.json(result);
+    });
+    
 
     // loanprocess
     app.post("/loanSystem", async (req, res) => {
@@ -366,8 +384,8 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          // `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
-          `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
+          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+          // `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
     });
