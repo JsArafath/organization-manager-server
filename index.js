@@ -57,6 +57,9 @@ async function run() {
             .db("OrganizationManager")
             .collection("loansCollection");
 
+        // reviews Collection
+        const reviewsCollection = client.db("OrganizationManager").collection('Reviews'); 
+
         // verify admin user
         const verifyAdmin = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -82,24 +85,30 @@ async function run() {
         };
 
         // get all news
-        app.get("/news", async (req, res, next) => {
+        app.get("/news", async (req, res) => {
             const query = {};
             const news = await newsCollection.find(query).toArray();
             res.send(news);
         });
 
-        // post user data
+        // get all reviews
+        app.get("/reviews", async (req, res) => {
+            const query = {};
+            const reviews = await reviewsCollection.find(query).toArray();
+            res.send(reviews);
+
+        })
 
         // paginate for users
-        app.get('/users/getpage/:organization', async (req, res) => {
-            const organization = req.params.organization;
-            const page = parseInt(req.query.page);
-            const size = parseInt(req.query.size);
-            const query = { organization };
-            const users = await usersCollection.find(query).skip(page * size).limit(size).toArray();
-            const count = users.length;
-            res.send({ users, count })
-        })
+        // app.get('/users/getpage/:organization', async (req, res) => {
+        //     const organization = req.params.organization;
+        //     const page = parseInt(req.query.page);
+        //     const size = parseInt(req.query.size);
+        //     const query = { organization };
+        //     const users = await usersCollection.find(query).skip(page * size).limit(size).toArray();
+        //     const count = users.length;
+        //     res.send({ users, count })
+        // })
 
 
         app.get('/organizations/:id', async (req, res) => {
