@@ -158,6 +158,29 @@ async function run() {
       res.send(result);
     });
 
+    //add new donation to usersCollection specific orgaization user
+    app.post("/add-donation", async (req, res) => {
+      const orgName = req.query.orgName;
+      const newDonation = req.body;
+      const query = { organization: orgName };
+      const users = await usersCollection.find(query).toArray();
+      let result;
+      const usersDonation = users.map((user) => {
+        //push newDonation to donation array & update usersCollection database
+        user.donation.push(newDonation);
+        const filter = { email: user.email };
+        const options = { upsert: true };
+        const updatedDoc = {
+          $set: {
+            donation: user.donation,
+          },
+        };
+        result = usersCollection.updateOne(filter, updatedDoc, options);
+
+      });
+      res.send(result);
+    });
+
     // check customer
     app.get("/user/customer/:email", async (req, res) => {
       const email = req.params.email;
