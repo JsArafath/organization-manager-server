@@ -12,6 +12,7 @@ const is_live = false;
 
 const app = express();
 
+
 //middleware
 app.use(cors());
 app.use(express.json());
@@ -48,9 +49,6 @@ async function run() {
     const newsCollection = client
       .db("OrganizationManager")
       .collection("newsCollection");
-    const donationCollection = client
-      .db("OrganizationManager")
-      .collection("donationHistory");
     // events collection
     const eventsCollection = client
       .db("OrganizationManager")
@@ -91,13 +89,6 @@ async function run() {
       const news = await newsCollection.find(query).toArray();
       res.send(news);
     });
-    // get all donationHistory
-    app.get("/donationHistory", async (req, res, next) => {
-      const query = {};
-      const donationhistory = await donationCollection.find(query).toArray();
-      res.send(donationhistory);
-    });
-    
 
     // get all users
     app.get("/users", async (req, res) => {
@@ -168,6 +159,29 @@ async function run() {
       res.send(result);
     });
 
+    //add new donation to usersCollection specific orgaization user
+    app.post("/add-donation", async (req, res) => {
+      const orgName = req.query.orgName;
+      const newDonation = req.body;
+      const query = { organization: orgName };
+      const users = await usersCollection.find(query).toArray();
+      let result;
+      const usersDonation = users.map((user) => {
+        //push newDonation to donation array & update usersCollection database
+        user.donation.push(newDonation);
+        const filter = { email: user.email };
+        const options = { upsert: true };
+        const updatedDoc = {
+          $set: {
+            donation: user.donation,
+          },
+        };
+        result = usersCollection.updateOne(filter, updatedDoc, options);
+
+      });
+      res.send(result);
+    });
+
     // check customer
     app.get("/user/customer/:email", async (req, res) => {
       const email = req.params.email;
@@ -213,14 +227,6 @@ async function run() {
       console.log("hitting the post", req.body);
       res.json(result);
     });
-    // Post Api For All Donation History
-    app.post("/donationHistory", async (req, res) => {
-      const newdonation = req.body;
-      const result = await donationCollection.insertOne(newdonation);
-      console.log("hitting the post", req.body);
-      res.json(result);
-    });
-    
 
     // loanprocess
     app.post("/loanSystem", async (req, res) => {
@@ -241,6 +247,7 @@ async function run() {
       const loanApplication = await loanCollection.find(query).toArray();
       res.send(loanApplication);
     });
+
     // accept
     app.put("/accept/:id", async (req, res) => {
       const id = req.params.id;
@@ -249,6 +256,7 @@ async function run() {
       const updatedDoc = {
         $set: {
           loan: "accepted",
+          endDate: req.body.endDate,
         },
       };
       const result = await loanCollection.updateOne(
@@ -258,6 +266,7 @@ async function run() {
       );
       res.send(result);
     });
+
     // reject
     app.put("/reject/:id", async (req, res) => {
       const id = req.params.id;
@@ -384,8 +393,8 @@ async function run() {
 
       if (result.modifiedCount > 0) {
         res.redirect(
-          `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
-          // `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
+          // `http://127.0.0.1:5173/dashboard/payment/success?transactionID=${transactionId}`
+          `https://organization-manager.vercel.app/dashboard/payment/success?transactionID=${transactionId}`
         );
       }
     });
