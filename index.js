@@ -59,6 +59,11 @@ async function run() {
       .db("OrganizationManager")
       .collection("loansCollection");
 
+    // reviewCollection
+    const reviewCollection = client
+      .db("OrganizationManager")
+      .collection("reviewCollection");
+
     // verify admin user
     const verifyAdmin = async (req, res, next) => {
       const decodedEmail = req.decoded.email;
@@ -88,6 +93,13 @@ async function run() {
       const query = {};
       const news = await newsCollection.find(query).toArray();
       res.send(news);
+    });
+
+    // get all reviews
+    app.get("/reviews", async (req, res, next) => {
+      const query = {};
+      const reviews = await reviewCollection.find(query).toArray();
+      res.send(reviews);
     });
 
     // get all users
@@ -177,7 +189,7 @@ async function run() {
           },
         };
         result = usersCollection.updateOne(filter, updatedDoc, options);
-
+console.log(result);
       });
       res.send(result);
     });
@@ -224,6 +236,14 @@ async function run() {
     app.post("/events", async (req, res) => {
       const newevents = req.body;
       const result = await eventsCollection.insertOne(newevents);
+      console.log("hitting the post", req.body);
+      res.json(result);
+    });
+
+    // Post Api For All reviews
+    app.post("/reviews", async (req, res) => {
+      const newreviews = req.body;
+      const result = await reviewCollection.insertOne(newreviews);
       console.log("hitting the post", req.body);
       res.json(result);
     });
@@ -317,7 +337,7 @@ async function run() {
         currency: "BDT",
         tran_id: transactionId, // use unique tran_id for each api call
         // success_url: `http://localhost:5000/due-payment/success?transactionId=${transactionId}`,
-        success_url: `https://organization-manager-server-main-jsarafath.vercel.app/due-payment/success?transactionId=${transactionId}`,
+        success_url: `https://organization-manager-server.onrender.com/due-payment/success?transactionId=${transactionId}`,
         fail_url: "http://localhost:3030/fail",
         cancel_url: "http://localhost:3030/cancel",
         ipn_url: "http://localhost:3030/ipn",
