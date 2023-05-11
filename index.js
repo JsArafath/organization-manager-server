@@ -150,13 +150,13 @@ async function run() {
           const filter = {_id : new ObjectId(id)};
           const user = req.body;
           const options = {upsert : true}
-          const  updatedUser = {
+          const  updatedDoc = {
             $set : {
                    name : user.name,
                    phone : user.phone
             }
           }
-          const result = await usersCollection.updateOne(filter,updatedUser,options)
+          const result = await usersCollection.updateOne(filter,updatedDoc,options)
           res.send(result);
          })
 
