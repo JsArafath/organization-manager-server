@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 //     console.log("Error connecting to MongoDB", err);
 //   } else {
 //     console.log("Connected to MongoDB");
-//     // Perform operations on the database here
+//    // Perform operations on the database here
 //   }
 // });
 
@@ -97,7 +97,7 @@ async function run() {
             const query = {};
             const reviews = await reviewsCollection.find(query).toArray();
             res.send(reviews);
-
+            
         })
 
         // paginate for users
